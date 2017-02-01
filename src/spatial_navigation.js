@@ -33,7 +33,19 @@
     tabIndexIgnoreList:
       'a, input, select, textarea, button, iframe, [contentEditable=true]',
     navigableFilter: null,
-    ignoreInnerDimensionValidation: false
+
+    /**
+     * Disables offset dimension validation.
+     * 
+     * Usually before an element get focused it'll be checked
+     * whether it's navigable or not. To do so it checks, among other things, whether
+     * the offsetWidth or the offsetHeight is greater than null because then it means
+     * that element is visible. Some elements haven't any offsetWidth or offsetHeight 
+     * defined even though they're visible to the viewer. To make those elements 
+     * navigable this option can be set to true and the validation will be ignored. 
+     * That option is available for a particular section or globally.
+     */
+    ignoreOffsetDimensionValidation: false
   };
 
   /*********************/
@@ -520,10 +532,10 @@
       return false;
     }
 
-    var ignoreInnerDimensionValidation = (typeof _sections[sectionId].ignoreInnerDimensionValidation === 'boolean' && _sections[sectionId].ignoreInnerDimensionValidation === true) ||
-                                        (typeof GlobalConfig.ignoreInnerDimensionValidation === 'boolean' && GlobalConfig.ignoreInnerDimensionValidation === true);
+    var ignoreOffsetDimensionValidation = (typeof _sections[sectionId].ignoreOffsetDimensionValidation === 'boolean' && _sections[sectionId].ignoreOffsetDimensionValidation === true) ||
+                                        (typeof GlobalConfig.ignoreOffsetDimensionValidation === 'boolean' && GlobalConfig.ignoreOffsetDimensionValidation === true);
 
-    if ((!ignoreInnerDimensionValidation && elem.offsetWidth <= 0 && elem.offsetHeight <= 0) ||
+    if ((!ignoreOffsetDimensionValidation && elem.offsetWidth <= 0 && elem.offsetHeight <= 0) ||
         elem.hasAttribute('disabled')) {
       return false;
     }
