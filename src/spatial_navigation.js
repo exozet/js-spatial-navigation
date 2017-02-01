@@ -852,9 +852,9 @@
 
     var currentFocusedElement;
     var preventDefault = function() {
-      evt.preventDefault();
+      /*evt.preventDefault();
       evt.stopPropagation();
-      return false;
+      return false;*/
     };
 
     var direction = KEYMAPPING[evt.keyCode];
@@ -905,8 +905,8 @@
       var currentFocusedElement = getCurrentFocusedElement();
       if (currentFocusedElement && getSectionId(currentFocusedElement)) {
         if (!fireEvent(currentFocusedElement, 'enter-up')) {
-          evt.preventDefault();
-          evt.stopPropagation();
+          /*evt.preventDefault();
+          evt.stopPropagation();*/
         }
       }
     }
