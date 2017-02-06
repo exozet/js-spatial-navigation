@@ -45,7 +45,17 @@
      * navigable this option can be set to true and the validation will be ignored. 
      * That option is available for a particular section or globally.
      */
-    ignoreOffsetDimensionValidation: false
+    ignoreOffsetDimensionValidation: false,
+
+    /**
+     * Disables event propagation.
+     * 
+     * Event propagation is necessary to let everyone who is listening for 
+     * a particular event know that the expected event occurred. But there're 
+     * case where it might be necessary to stop propagation. Those cases should
+     * be really rare. For those cases you can enable it with this open globally.
+     */
+    disableEventPropagation: false
   };
 
   /*********************/
@@ -857,17 +867,24 @@
     return false;
   }
 
+  function preventDefault(event) 
+  {
+    if (GlobalConfig.disableEventPropagation) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      return false;
+    }
+
+    return true;
+  };
+
   function onKeyDown(evt) {
     if (!_sectionCount || _pause) {
       return;
     }
 
     var currentFocusedElement;
-    var preventDefault = function() {
-      /*evt.preventDefault();
-      evt.stopPropagation();
-      return false;*/
-    };
 
     var direction = KEYMAPPING[evt.keyCode];
     if (!direction) {
@@ -875,7 +892,7 @@
         currentFocusedElement = getCurrentFocusedElement();
         if (currentFocusedElement && getSectionId(currentFocusedElement)) {
           if (!fireEvent(currentFocusedElement, 'enter-down')) {
-            return preventDefault();
+            return preventDefault(evt);
           }
         }
       }
@@ -890,7 +907,7 @@
       }
       if (!currentFocusedElement) {
         focusSection();
-        return preventDefault();
+        return preventDefault(evt);
       }
     }
 
@@ -909,7 +926,7 @@
       focusNext(direction, currentFocusedElement, currentSectionId);
     }
 
-    return preventDefault();
+    return preventDefault(evt);
   }
 
   function onKeyUp(evt) {
@@ -917,8 +934,7 @@
       var currentFocusedElement = getCurrentFocusedElement();
       if (currentFocusedElement && getSectionId(currentFocusedElement)) {
         if (!fireEvent(currentFocusedElement, 'enter-up')) {
-          /*evt.preventDefault();
-          evt.stopPropagation();*/
+          preventDefault(evt);
         }
       }
     }
