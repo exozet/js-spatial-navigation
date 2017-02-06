@@ -214,7 +214,8 @@ Following is an example with default values.
   restrict: 'self-first',
   tabIndexIgnoreList: 'a, input, select, textarea, button, iframe, [contentEditable=true]',
   navigableFilter: null,
-  ignoreOffsetDimensionValidation: false
+  ignoreOffsetDimensionValidation: false,
+  disableEventPropagation: false
 }
 ```
 
@@ -321,6 +322,14 @@ SpatialNavigation calls this function every time when it tries to traverse every
 When the library checks whether an element is navigable or not, it validates the offset width and height values to be greater than zero
 and only then the element is navigable. There're also cases where the offset width and height are zero but the element is still visible and therefore needs to be focusable. 
 In such cases it's possible to disable the validation at all for a particular section or globally.
+
+#### `disableEventPropagation`
+
+  + Type: `'boolean'`
+  + Default: `false`
+
+Event propagation is necessary to let everyone who is listening for a particular event know that the expected event occurred. But there're 
+case where it might be necessary to stop propagation. Those cases should be really rare. For those cases you can enable it with this open globally.
 
 ### Custom Attributes
 
