@@ -58,6 +58,16 @@
     disableEventPropagation: false,
 
     /**
+     * Enables native last active element storage.
+     * 
+     * The browser allows with document.activeElement access to the last
+     * focused element. In some cases where you will not use the native focus
+     * system, you may want to use the internal active element which will be saved
+     * every time when an element was focused.
+     */
+    useNativeActiveElement: true,
+
+    /**
      * Performs blur action.
      * 
      * Instead of executing blur() directly this function
@@ -113,7 +123,7 @@
   var _defaultSectionId = '';
   var _lastSectionId = '';
   var _duringFocusChange = false;
-  var _savedLastElement = null;
+  var _savedActiveElement = null;
 
   /************/
   /* Polyfill */
@@ -526,9 +536,13 @@
   }
 
   function getCurrentFocusedElement() {
-    var activeElement = document.activeElement;
-    if (activeElement && activeElement !== document.body) {
-      return activeElement;
+    if (GlobalConfig.useNativeActiveElement) {
+      var activeElement = document.activeElement;
+      if (activeElement && activeElement !== document.body) {
+        return activeElement;
+      }
+    } else {
+      return _savedActiveElement;
     }
   }
 
@@ -651,7 +665,7 @@
       }
       
       GlobalConfig.performFocusAction(sectionId, elem);
-      _savedLastElement = elem;
+      _savedActiveElement = elem;
 
       focusChanged(elem, sectionId);
     };
@@ -698,7 +712,7 @@
     }
     
     GlobalConfig.performFocusAction(sectionId, elem);
-    _savedLastElement = elem;
+    _savedActiveElement = elem;
 
     fireEvent(elem, 'focused', focusProperties, false);
 
@@ -1024,7 +1038,7 @@
         _duringFocusChange = true;
         setTimeout(function() {
           GlobalConfig.performFocusAction(sectionId, target);
-          _savedLastElement = target;
+          _savedActiveElement = target;
 
           _duringFocusChange = false;
         });
