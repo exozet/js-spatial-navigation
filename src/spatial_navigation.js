@@ -55,7 +55,31 @@
      * case where it might be necessary to stop propagation. Those cases should
      * be really rare. For those cases you can enable it with this open globally.
      */
-    disableEventPropagation: false
+    disableEventPropagation: false,
+
+    /**
+     * Performs blur action.
+     * 
+     * Instead of executing blur() directly this function
+     * will be performed and allows you to build in your
+     * own blur handling.
+     * 
+     * @param string sectionId  - section of the leaving element
+     * @param object element    - leaving element
+     */
+    performBlurAction: performDefaultBlurAction,
+
+    /**
+     * Performs blur action.
+     * 
+     * Instead of executing focus() directly this function
+     * will be performed and allows you to build in your
+     * own focus handling.
+     * 
+     * @param string sectionId  - section of the element that got the focus
+     * @param object element    - element that got the focus
+     */
+    performFocusAction: performDefaultFocusAction
   };
 
   /*********************/
@@ -89,6 +113,7 @@
   var _defaultSectionId = '';
   var _lastSectionId = '';
   var _duringFocusChange = false;
+  var _savedLastElement = null;
 
   /************/
   /* Polyfill */
@@ -622,9 +647,12 @@
 
     var silentFocus = function() {
       if (currentFocusedElement) {
-        currentFocusedElement.blur();
+        GlobalConfig.performBlurAction(sectionId, currentFocusedElement);
       }
-      elem.focus();
+      
+      GlobalConfig.performFocusAction(sectionId, elem);
+      _savedLastElement = elem;
+
       focusChanged(elem, sectionId);
     };
 
@@ -652,7 +680,9 @@
         _duringFocusChange = false;
         return false;
       }
-      currentFocusedElement.blur();
+      
+      GlobalConfig.performBlurAction(sectionId, currentFocusedElement);
+
       fireEvent(currentFocusedElement, 'unfocused', unfocusProperties, false);
     }
 
@@ -666,7 +696,10 @@
       _duringFocusChange = false;
       return false;
     }
-    elem.focus();
+    
+    GlobalConfig.performFocusAction(sectionId, elem);
+    _savedLastElement = elem;
+
     fireEvent(elem, 'focused', focusProperties, false);
 
     _duringFocusChange = false;
@@ -867,6 +900,16 @@
     return false;
   }
 
+  function performDefaultFocusAction(sectionId, element)
+  {
+    element.focus();
+  };
+
+  function performDefaultBlurAction(sectionId, element)
+  {
+    element.blur();
+  };
+
   function preventDefault(event) 
   {
     if (GlobalConfig.disableEventPropagation) {
@@ -958,7 +1001,9 @@
 
         if (!fireEvent(target, 'willfocus', focusProperties)) {
           _duringFocusChange = true;
-          target.blur();
+          
+          GlobalConfig.performBlurAction(sectionId, target);
+
           _duringFocusChange = false;
         } else {
           fireEvent(target, 'focused', focusProperties, false);
@@ -978,7 +1023,9 @@
       if (!fireEvent(target, 'willunfocus', unfocusProperties)) {
         _duringFocusChange = true;
         setTimeout(function() {
-          target.focus();
+          GlobalConfig.performFocusAction(sectionId, target);
+          _savedLastElement = target;
+
           _duringFocusChange = false;
         });
       } else {
