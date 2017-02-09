@@ -77,7 +77,7 @@
      * @param string sectionId  - section of the leaving element
      * @param object element    - leaving element
      */
-    performBlurAction: performDefaultBlurAction,
+    performBlurAction: null,
 
     /**
      * Performs blur action.
@@ -89,7 +89,7 @@
      * @param string sectionId  - section of the element that got the focus
      * @param object element    - element that got the focus
      */
-    performFocusAction: performDefaultFocusAction
+    performFocusAction: null
   };
 
   /*********************/
@@ -124,6 +124,8 @@
   var _lastSectionId = '';
   var _duringFocusChange = false;
   var _savedActiveElement = null;
+  var _performFocusAction = performDefaultFocusAction;
+  var _performBlurAction = performDefaultBlurAction;
 
   /************/
   /* Polyfill */
@@ -661,10 +663,10 @@
 
     var silentFocus = function() {
       if (currentFocusedElement) {
-        GlobalConfig.performBlurAction(sectionId, currentFocusedElement);
+        _performBlurAction(sectionId, currentFocusedElement);
       }
       
-      GlobalConfig.performFocusAction(sectionId, elem);
+      _performFocusAction(sectionId, elem);
       _savedActiveElement = elem;
 
       focusChanged(elem, sectionId);
@@ -695,7 +697,7 @@
         return false;
       }
       
-      GlobalConfig.performBlurAction(sectionId, currentFocusedElement);
+      _performBlurAction(sectionId, currentFocusedElement);
 
       fireEvent(currentFocusedElement, 'unfocused', unfocusProperties, false);
     }
@@ -711,7 +713,7 @@
       return false;
     }
     
-    GlobalConfig.performFocusAction(sectionId, elem);
+    _performFocusAction(sectionId, elem);
     _savedActiveElement = elem;
 
     fireEvent(elem, 'focused', focusProperties, false);
@@ -1016,7 +1018,7 @@
         if (!fireEvent(target, 'willfocus', focusProperties)) {
           _duringFocusChange = true;
           
-          GlobalConfig.performBlurAction(sectionId, target);
+          _performBlurAction(sectionId, target);
 
           _duringFocusChange = false;
         } else {
@@ -1037,7 +1039,7 @@
       if (!fireEvent(target, 'willunfocus', unfocusProperties)) {
         _duringFocusChange = true;
         setTimeout(function() {
-          GlobalConfig.performFocusAction(sectionId, target);
+          _performFocusAction(sectionId, target);
           _savedActiveElement = target;
 
           _duringFocusChange = false;
@@ -1103,7 +1105,15 @@
           if (sectionId) {
             _sections[sectionId][key] = config[key];
           } else if (config[key] !== undefined) {
-            GlobalConfig[key] = config[key];
+            if (typeof config[key] === 'function') {
+              if (key === 'performFocusAction') {
+                _performFocusAction = config[key];
+              } else if (key === 'performBlurAction') {
+                _performBlurAction = config[key];
+              }
+            } else {
+              GlobalConfig[key] = config[key];
+            }
           }
         }
       }
