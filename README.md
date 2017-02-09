@@ -215,7 +215,9 @@ Following is an example with default values.
   tabIndexIgnoreList: 'a, input, select, textarea, button, iframe, [contentEditable=true]',
   navigableFilter: null,
   ignoreOffsetDimensionValidation: false,
-  disableEventPropagation: false
+  disableEventPropagation: false,
+  performBlurAction: null,
+  performFocusAction: null
 }
 ```
 
@@ -330,6 +332,30 @@ In such cases it's possible to disable the validation at all for a particular se
 
 Event propagation is necessary to let everyone who is listening for a particular event know that the expected event occurred. But there're 
 case where it might be necessary to stop propagation. Those cases should be really rare. For those cases you can enable it with this open globally.
+
+#### `performBlurAction`
+
+  + Type: `'function'`
+  + Default: `null`
+
+Instead of executing blur() directly this function will be performed and allows you to build in your
+own focus handler.
+
+Function parameter:
+  - string sectionId  - section of the leaving element
+  - object element    - leaving element
+
+#### `performFocusAction`
+
+  + Type: `'function'`
+  + Default: `null`
+
+Instead of executing focus() directly this function will be performed and allows you to build in your
+own focus handler.
+
+Function parameter:
+  - string sectionId  - section of the element that got the focus
+  - object element    - element that got the focus
 
 ### Custom Attributes
 
