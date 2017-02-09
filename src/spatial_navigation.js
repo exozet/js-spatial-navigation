@@ -72,7 +72,7 @@
      * 
      * Instead of executing blur() directly this function
      * will be performed and allows you to build in your
-     * own blur handling.
+     * own blur handler.
      * 
      * @param string sectionId  - section of the leaving element
      * @param object element    - leaving element
@@ -80,11 +80,11 @@
     performBlurAction: null,
 
     /**
-     * Performs blur action.
+     * Performs focus action.
      * 
      * Instead of executing focus() directly this function
      * will be performed and allows you to build in your
-     * own focus handling.
+     * own focus handler.
      * 
      * @param string sectionId  - section of the element that got the focus
      * @param object element    - element that got the focus
