@@ -126,6 +126,7 @@
   var _savedActiveElement = null;
   var _performFocusAction = performDefaultFocusAction;
   var _performBlurAction = performDefaultBlurAction;
+  var _keyListenerEnabled = true;
 
   /************/
   /* Polyfill */
@@ -1054,10 +1055,20 @@
   /* Public Function */
   /*******************/
   var SpatialNavigation = {
-    init: function() {
+    /**
+     * Initialized this library.
+     * 
+     * @param boolean keyListenerEnabled - enables usage of key event listener [DEFAULT: true]
+     */
+    init: function(keyListenerEnabled) {
       if (!_ready) {
-        window.addEventListener('keydown', onKeyDown);
-        window.addEventListener('keyup', onKeyUp);
+        _keyListenerEnabled = (keyListenerEnabled !== false);
+
+        if (_keyListenerEnabled) {
+          window.addEventListener('keydown', onKeyDown);
+          window.addEventListener('keyup', onKeyUp);
+        }
+        
         window.addEventListener('focus', onFocus, true);
         window.addEventListener('blur', onBlur, true);
         _ready = true;
@@ -1067,8 +1078,12 @@
     uninit: function() {
       window.removeEventListener('blur', onBlur, true);
       window.removeEventListener('focus', onFocus, true);
-      window.removeEventListener('keyup', onKeyUp);
-      window.removeEventListener('keydown', onKeyDown);
+
+      if (_keyListenerEnabled) {
+        window.removeEventListener('keyup', onKeyUp);
+        window.removeEventListener('keydown', onKeyDown);
+      }
+      
       SpatialNavigation.clear();
       _idPool = 0;
       _ready = false;
@@ -1165,6 +1180,11 @@
         return true;
       }
       return false;
+    },
+
+    isSectionEnabled: function(sectionId)
+    {
+      return (sectionId in _sections && typeof _sections[sectionId] === 'object' && !_sections[sectionId].disabled);
     },
 
     disable: function(sectionId) {
